@@ -1,0 +1,84 @@
+/*! RESOURCE: /scripts/scriptDebugger/launchScriptDebugger.js */
+var launchScriptDebuggerOK = true;
+window.top.launchScriptDebugger = function (id, type, field, debuggerState) {
+	function _launch() {
+		var width = window.innerWidth - 40,
+			height = window.innerHeight,
+			x = window.screenX + 20,
+			y = window.screenY + 20,
+			features =
+				'width=' +
+				width +
+				',height=' +
+				height +
+				',toolbar=no,status=no,directories=no,menubar=no,resizable=yes,screenX=' +
+				x +
+				',left=' +
+				x +
+				',screenY=' +
+				y +
+				',top=' +
+				y;
+		var debuggerWind = window.open('', 'sn_ScriptDebugger', features);
+		
+		if (!debuggerWind) {
+			return;
+		}
+		
+		var prevFullUrl = debuggerWind.location.href,
+			reload = false;
+		if (prevFullUrl === 'about:blank') {
+			reload = true;
+		}
+var url = '/$jsdebugger.do?sysparm_nostack=true';
+		if (id && type && field) {
+			url =
+'/$jsdebugger.do?scriptId=' +
+				id +
+				'&scriptType=' +
+				type +
+				'&scriptField=' +
+				field +
+				'&sysparm_nostack=true';
+			if (!reload) {
+				try {
+					localStorage.setItem('sn_ScriptDebugger_url', url);
+				} catch (e) {
+				} finally {
+var prevUrl = prevFullUrl.slice(prevFullUrl.indexOf('/$jsdebugger.do'));
+					if (prevUrl != url) reload = true;
+				}
+			}
+		}
+		var sessionLogType =
+			debuggerState && debuggerState.sessionLog && debuggerState.sessionLog.type;
+		if (sessionLogType) {
+url = '/$jsdebugger.do?logType=' + debuggerState.sessionLog.type;
+			if (debuggerState.sessionLog.disable) {
+				url = url + '&disableType=true';
+			}
+			url = url + '&sysparm_nostack=true';
+			reload = true;
+		}
+		var scriptTracerTab = debuggerState && debuggerState.scriptTracer;
+		if (scriptTracerTab) {
+url = '/$jsdebugger.do?scriptTracer=true';
+			url = url + '&sysparm_nostack=true';
+			reload = true;
+		}
+		if (reload) {
+			debuggerWind = window.open(url, 'sn_ScriptDebugger', features);
+		}
+		debuggerWind.focus();
+		debuggerWind.setTimeout(focus, 1);
+	}
+	if (launchScriptDebuggerOK) {
+		launchScriptDebuggerOK = false;
+		try {
+			_launch();
+		} catch (e) {
+		}
+		launchScriptDebuggerOK = true;
+	}
+};
+;
